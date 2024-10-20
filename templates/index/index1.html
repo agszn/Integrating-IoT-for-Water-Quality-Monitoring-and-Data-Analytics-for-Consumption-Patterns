@@ -1,0 +1,173 @@
+
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+	background-image: url(https://elements-video-cover-images-0.imgix.net/files/995c47c3-c5c9-4650-965b-45c2b3a59de0/inline_image_preview.jpg?auto=compress%2Cformat&h=450&w=800&fit=min&s=d1970f9ab3e4cceadbd85aa09c9b769a);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: cover;
+}
+canvas#canvas {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.container {
+			position: relative;
+			z-index: 1;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+            margin: 50px;
+            padding-top: 27%;
+        }
+
+        h1 {
+            font-weight: bold; /* Add bold font */
+            font-size: 7em; /* Adjust font size as needed */
+            font-family: 'Arial', sans-serif; /* Use a professional font family */
+			color: #fff;
+			text-shadow: 3px 3px 3px rgba(41,128,185,.8);
+        }
+
+        p {
+            font-style: italic;
+			font-size: 3em;
+            font-family: 'Arial', sans-serif; /* Use a professional font family */
+        }
+</style>
+
+
+<div class="container">
+	  <h1>Project Title</h1>
+	  <p>Project discription</p>
+</div>
+<canvas id="canvas"></canvas>
+
+
+
+<script>
+    const canvas = document.querySelector("#canvas");
+const ctx = canvas.getContext("2d");
+
+let w, h, balls = [];
+let mouse = {
+	x: undefined,
+	y: undefined
+}
+let rgb = [
+	"rgb(26, 188, 156)",
+	"rgb(46, 204, 113)",
+	"rgb(52, 152, 219)",
+	"rgb(155, 89, 182)",
+	"rgb(241, 196, 15)",
+	"rgb(230, 126, 34)",
+	"rgb(231, 76, 60)"
+]
+
+function init() {
+	resizeReset();
+	animationLoop();
+}
+
+function resizeReset() {
+	w = canvas.width = window.innerWidth;
+	h = canvas.height = window.innerHeight;
+}
+
+function animationLoop() {
+	ctx.clearRect(0, 0, w, h);
+	ctx.globalCompositeOperation = 'lighter';
+	drawBalls();
+
+	let temp = [];
+	for (let i = 0; i < balls.length; i++) {
+		if (balls[i].time <= balls[i].ttl) {
+			temp.push(balls[i]);
+		}
+	}
+	balls = temp;
+
+	requestAnimationFrame(animationLoop);
+}
+
+function drawBalls() {
+	for (let i = 0; i < balls.length; i++) {
+		balls[i].update();
+		balls[i].draw();
+	}
+}
+
+function mousemove(e) {
+	mouse.x = e.x;
+	mouse.y = e.y;
+
+	for (let i = 0; i < 3; i++) {
+		balls.push(new Ball());
+	}	
+}
+
+function mouseout() {
+	mouse.x = undefined;
+	mouse.y = undefined;
+}
+
+function getRandomInt(min, max) {
+	return Math.round(Math.random() * (max - min)) + min;
+}
+
+function easeOutQuart(x) {
+	return 1 - Math.pow(1 - x, 4);
+}
+
+class Ball {
+	constructor() {
+		this.start = {
+			x: mouse.x + getRandomInt(-20, 20),
+			y: mouse.y + getRandomInt(-20, 20),
+			size: getRandomInt(30, 40)
+		}
+		this.end = {
+			x: this.start.x + getRandomInt(-300, 300),
+			y: this.start.y + getRandomInt(-300, 300)
+		}
+
+		this.x = this.start.x;
+		this.y = this.start.y;
+		this.size = this.start.size;
+
+		this.style = rgb[getRandomInt(0, rgb.length - 1)];
+
+		this.time = 0;
+		this.ttl = 120;
+	}
+	draw() {
+		ctx.fillStyle = this.style;
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+		ctx.closePath();
+		ctx.fill();
+	}
+	update() {
+		if (this.time <= this.ttl) {
+			let progress = 1 - (this.ttl - this.time) / this.ttl;
+
+			this.size = this.start.size * (1 - easeOutQuart(progress));
+			this.x = this.x + (this.end.x - this.x) * 0.01;
+			this.y = this.y + (this.end.y - this.y) * 0.01;
+		}
+		this.time++;
+	}
+}
+
+window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("resize", resizeReset);
+window.addEventListener("mousemove", mousemove);
+window.addEventListener("mouseout", mouseout);
+</script>

@@ -1,0 +1,157 @@
+<style>
+    body {
+        padding: 0;
+        margin: 0;
+        height: 100vh;
+        background-color: #fff;
+        overflow: hidden; /* Hide overflow to prevent scrolling */
+    }
+
+    #canvas {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .container {
+        position: fixed;
+        left: 20px; /* Adjust the left position as needed */
+        top: 50%;
+        transform: translateY(-50%);
+        color: #373839; /* Text color */
+        font-family: 'Arial', sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        z-index: 2; /* Ensure the text is in front */
+        background-color: rgba(0, 255, 255, 0.7); /* Increase opacity */
+        padding: 12px;
+        border-radius: 10px;
+        opacity: 0;
+        animation: fadeInUp 1.5s ease-out forwards;
+		text-align: center;
+		border: 2px solid #000; /* Black border */
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container">
+    <h1>Project Title</h1>
+    <p>Project Description</p>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+    let canvas, ctx, w, h;
+    let circles = [], circleRadius = 25, hue = 0, gradient;
+    let mouse = {
+        x: undefined,
+        y: undefined
+    }
+
+    function init() {
+        canvas = document.querySelector("#canvas");
+        ctx = canvas.getContext("2d");
+
+        resizeReset();
+        for (let i = 0; i < h / circleRadius; i++) {
+            for (let j = 0; j < w / circleRadius; j++) {
+                circles.push(new Circle(i, j));
+            }
+        }
+        animationLoop();
+    }
+
+    function resizeReset() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+
+    function mousemove(e) {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    }
+
+    function mouseout() {
+        mouse.x = undefined;
+        mouse.y = undefined;
+    }
+
+    function animationLoop() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "xor";
+
+        hue += 1;
+        gradient = ctx.createLinearGradient(0, 0, 0, h);
+        gradient.addColorStop(0, `hsl(${hue}, 60%, 50%)`);
+        gradient.addColorStop(1, `hsl(${hue + 30}, 60%, 50%)`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+
+        drawScene();
+        requestAnimationFrame(animationLoop);
+    }
+
+    function drawScene() {
+        circles.map((circle) => {
+            circle.update();
+            circle.draw();
+        })
+    }
+
+    class Circle {
+        constructor(i, j) {
+            this.ratio = 1.3;
+            this.x = circleRadius + (circleRadius * 2 * j);
+            this.y = circleRadius + (circleRadius * 2 * i);
+            this.radius = circleRadius * this.ratio;
+            this.targetRadius = this.radius;
+            this.f = 0.05;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(52, 152, 219, 1)";
+            ctx.fill();
+            ctx.closePath();
+        }
+        update() {
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < circleRadius * 5) {
+                let d = distance / (circleRadius * 5);
+                this.targetRadius = circleRadius * (this.ratio * d);
+            } else {
+                this.targetRadius = circleRadius * this.ratio;
+            }
+
+            if (this.radius != this.targetRadius) {
+                this.radius += (this.targetRadius - this.radius) * this.f;
+            }
+
+            if (Math.abs(this.radius - this.targetRadius) < 0.1) {
+                this.radius = this.targetRadius;
+            }
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+    window.addEventListener("resize", resizeReset);
+    window.addEventListener("mousemove", mousemove);
+    window.addEventListener("mouseout", mouseout);
+
+</script>

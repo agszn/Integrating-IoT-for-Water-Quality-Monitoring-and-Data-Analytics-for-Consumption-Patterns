@@ -1,0 +1,73 @@
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #3498db, #2980b9); /* Add your preferred background gradient */
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            document.addEventListener('mousemove', function (e) {
+                createParticles(e.pageX, e.pageY);
+            });
+
+            function createParticles(x, y) {
+                const particleCount = 5; // Adjust the number of particles
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: x,
+                        y: y,
+                        size: Math.random() * 5 + 2, // Adjust the size range
+                        color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.8)`,
+                        speedX: (Math.random() - 0.5) * 3, // Adjust the speed
+                        speedY: (Math.random() - 0.5) * 3
+                    });
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < particles.length; i++) {
+                    ctx.fillStyle = particles[i].color;
+                    ctx.beginPath();
+                    ctx.arc(particles[i].x, particles[i].y, particles[i].size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    particles[i].x += particles[i].speedX;
+                    particles[i].y += particles[i].speedY;
+                    particles[i].size -= 0.1;
+
+                    if (particles[i].size <= 0) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                requestAnimationFrame(animateParticles);
+            }
+
+            animateParticles();
+
+            window.addEventListener('resize', function () {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        });
+    </script>
+

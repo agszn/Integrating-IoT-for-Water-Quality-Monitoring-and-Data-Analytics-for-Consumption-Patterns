@@ -1,0 +1,196 @@
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-image: linear-gradient(#dff9fb 0%, #0eb8c1 100%);
+            /* background-image: url(https://cutewallpaper.org/28/computer-wallpaper-plant/2271529561.jpg); */
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 10vh;
+        }
+
+        .left {
+            flex: 0 0 40%; /* 40% width */
+        }
+
+        .right {
+            flex: 0 0 55%; /* 55% width */
+            text-align: left;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 55px;
+        }
+
+        h1 {
+            font-size: 70px;
+            color: #000000;
+            text-shadow: 3px 3px 3px rgba(41, 128, 185, .8);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        p {
+            margin-top: -20px;
+            font-size: 30px;
+            color: #000;
+            animation: fadeInUp 1.5s ease-out;
+            margin-top: 1px;
+        }
+
+        img {
+            width: 350px;
+            height: 300px;
+            margin-left: 40%;
+            margin-bottom: 2%;
+            border-radius: 5%;
+            margin-top: 10%;
+            animation: zoomIn 1s ease-out, addShadow 1s ease-out;
+            box-shadow: 0 0 10px rgba(0.5, 0.3, 0, 0.3); 
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        @keyframes addShadow {
+            from {
+                box-shadow: none;
+            }
+            to {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            }
+        }
+        #canvas {
+            position: fixed;
+            z-index: -1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+</style>
+<div class="container">
+    <div class="left">
+        <img src="https://images.pexels.com/photos/4346325/pexels-photo-4346325.jpeg?cs=srgb&dl=pexels-ioana-motoc-4346325.jpg&fm=jpg" alt="Project Image">
+    </div>
+    <div class="right">
+        <h1>Project Title</h1>
+        <p>Project Description</p>
+    </div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.querySelector("#canvas");
+const ctx = canvas.getContext("2d");
+
+let w, h, balls = [];
+let mouse = {
+	x: undefined,
+	y: undefined
+}
+let rgb = [
+	[26, 188, 156],
+	[46, 204, 113],
+	[52, 152, 219],
+	[155, 89, 182],
+	[241, 196, 15],
+	[230, 126, 34],
+	[231, 76, 60]
+]
+
+function init() {
+	resizeReset();
+	animationLoop();
+}
+
+function resizeReset() {
+	w = canvas.width = window.innerWidth;
+	h = canvas.height = window.innerHeight;
+}
+
+function animationLoop() {
+	ctx.clearRect(0, 0, w, h);
+	if (mouse.x !== undefined && mouse.y !== undefined) {
+		balls.push(new Ball());
+	}	
+	if (balls.length > 200) {
+		balls = balls.slice(1);
+	}
+	drawBalls();
+	requestAnimationFrame(animationLoop);
+}
+
+function drawBalls() {
+	for (let i = 0; i < balls.length; i++) {
+		balls[i].update();
+		balls[i].draw();
+	}
+}
+
+function mousemove(e) {
+	mouse.x = e.x;
+	mouse.y = e.y;
+}
+
+function mouseout() {
+	mouse.x = undefined;
+	mouse.y = undefined;
+}
+
+function getRandomInt(min, max) {
+	return Math.round(Math.random() * (max - min)) + min;
+}
+
+class Ball {
+	constructor() {
+		this.x = mouse.x + getRandomInt(-20, 20);
+		this.y = mouse.y + getRandomInt(-20, 20);
+		this.size = getRandomInt(10, 20);
+		this.rgb = rgb[getRandomInt(0, rgb.length - 1)];
+		this.style = "rgba("+this.rgb[0]+","+this.rgb[1]+","+this.rgb[2]+",.5)";
+	}
+	draw() {
+		ctx.fillStyle = this.style;
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+		ctx.closePath();
+		ctx.fill();
+	}
+	update() {
+		if (this.size > 0) {
+			let s = this.size - 0.3;
+			this.size = (s <= 0) ? 0 : s;
+		}
+	}
+}
+
+window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("resize", resizeReset);
+window.addEventListener("mousemove", mousemove);
+window.addEventListener("mouseout", mouseout);
+</script>

@@ -1,0 +1,198 @@
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Hide overflow to prevent scrolling */
+
+    }
+
+    #container {
+        display: flex;
+        height: 80vh;
+    }
+
+    #canvas {
+        flex: 1;
+        background-image: linear-gradient(to top ,#f0dee8 0%, #38333c 40%, #1469a5 100%);
+        background-color: transparent;
+        border-radius: 0% 20% 0% 20%;
+        height: 65vh;
+        width: 70%;
+        margin-left: 12%;
+    }
+
+    #text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Arial', sans-serif;
+        color: #000000;
+        font-size: 24px;
+        font-weight: bold;
+        /* background-image: linear-gradient(#f7b8db 0%, #a389bc 40%, #c2d9ec 100%); */
+        border-radius: 5%;
+        padding: 15px;
+        animation: fadeInUp 1.5s ease-out;
+    }
+
+	#text h1 {
+    font-size: 70px;
+    color: #000000;
+    text-shadow: 3px 3px 3px rgba(41, 128, 185, .8);
+    animation: fadeInUp 1s ease-out;
+    margin-bottom: 10px;
+}
+
+/* Define fade-in-up animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add hover effect */
+#text:hover h1 {
+    text-shadow: 6px 6px 6px rgba(41, 128, 185, .8); /* Adjust text shadow on hover */
+    transform: scale(1.1); /* Optional: Add a scale effect on hover */
+}
+
+
+
+
+</style>
+
+<div id="container">
+    <canvas id="canvas"></canvas>
+    <div id="text">
+        <h1>Cyber Bulling Clasification</h1>
+        <p> Clasification Description Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laborum explicabo ex quisquam consectetur enim distinctio rerum mollitia earum nobis, tempora at beatae eum repudiandae alias quam modi totam. Assumenda, repellat.</p>
+    </div>
+</div>
+
+<script>
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext("2d");
+
+    let w, h, particles;
+    let particleDistance = 40;
+    let mouse = {
+        x: undefined,
+        y: undefined,
+        radius: 100
+    }
+
+    function init() {
+        resizeReset();
+        animationLoop();
+    }
+
+    function resizeReset() {
+        w = canvas.width = window.innerWidth / 2; // Set canvas width to half of window width
+        h = canvas.height = window.innerHeight;
+
+        particles = [];
+        for (let i = 0; i < 100; i++) {
+            let x = w / 2 + Math.cos(i * Math.PI / 50) * 100; // Adjust the radius and shape
+            let y = h / 2 + Math.sin(i * Math.PI / 50) * 100;
+            particles.push(new Particle(x, y));
+        }
+    }
+
+    function animationLoop() {
+        ctx.clearRect(0, 0, w, h);
+        drawScene();
+        requestAnimationFrame(animationLoop);
+    }
+
+    function drawScene() {
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+        }
+        drawLine();
+    }
+
+    function drawLine() {
+        for (let a = 0; a < particles.length; a++) {
+            for (let b = a; b < particles.length; b++) {
+                let dx = particles[a].x - particles[b].x;
+                let dy = particles[a].y - particles[b].y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < particleDistance * 1.5) {
+                    opacity = 1 - (distance / (particleDistance * 1.5));
+                    ctx.strokeStyle = "rgba(255,255,255," + opacity + ")";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function mousemove(e) {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    }
+
+    function mouseout() {
+        mouse.x = undefined;
+        mouse.y = undefined;
+    }
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.size = 4;
+            this.baseX = this.x;
+            this.baseY = this.y;
+            this.speed = (Math.random() * 2) + 1; // Adjust speed
+            this.angle = Math.random() * Math.PI * 2; // Initial random angle
+            this.distanceToMouse = 100; // Adjust distance to mouse
+        }
+        draw() {
+            ctx.fillStyle = "rgba(255,255,255,1)";
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        }
+        update() {
+            this.angle += 0.02; // Adjust rotation speed
+
+            this.x = this.baseX + Math.cos(this.angle) * this.distanceToMouse;
+            this.y = this.baseY + Math.sin(this.angle) * this.distanceToMouse;
+
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            let maxDistance = mouse.radius;
+            let force = (maxDistance - distance) / maxDistance; // 0 ~ 1
+            let forceDirectionX = dx / distance;
+            let forceDirectionY = dy / distance;
+            let directionX = forceDirectionX * force * this.speed;
+            let directionY = forceDirectionY * force * this.speed;
+
+            if (distance < mouse.radius) {
+                this.x += directionX;
+                this.y += directionY;
+            }
+        }
+    }
+
+    init();
+    window.addEventListener("resize", resizeReset);
+    window.addEventListener("mousemove", mousemove);
+    window.addEventListener("mouseout", mouseout);
+
+</script>

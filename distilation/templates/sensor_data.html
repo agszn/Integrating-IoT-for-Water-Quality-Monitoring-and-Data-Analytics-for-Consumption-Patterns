@@ -1,0 +1,49 @@
+{% block static %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .sensor-data {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        .sensor-data p {
+            margin: 5px 0;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+{% block index %}
+{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <h1>Sensor Data</h1>
+        <div class="sensor-data">
+            {% for data in sensor_data_list %}
+                <p>{{ data }}</p>
+            {% endfor %}
+        </div>
+        {% if error %}
+            <p class="error">Error: {{ error }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

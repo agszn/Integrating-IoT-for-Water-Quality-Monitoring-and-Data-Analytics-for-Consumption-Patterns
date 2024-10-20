@@ -1,0 +1,219 @@
+<style>
+body {
+	padding: 0;
+	margin: 0;
+	height: 100vh;
+	background: linear-gradient(to right, #b373b2, #6d027b); /*Red to blue linear gradient*/
+    background-attachment: fixed; /* Fixed background position while scrolling */
+	background-size: contain; /* Adjusting the size of the background */
+
+}
+
+#canvas {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 80%;
+	background: linear-gradient(to right, #b373b2, #6d027b); /*Red to blue linear gradient*/
+        background-attachment: fixed; /* Fixed background position while scrolling */
+		background-size: contain; /* Adjusting the size of the background */
+
+
+}
+
+.left {
+            flex: 0 0 40%; /* 40% width */
+        }
+
+        .right {
+            flex: 0 0 55%; /* 55% width */
+            text-align: left;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 70px;
+            color: #f4eeee;
+            text-shadow: 3px 3px 3px rgba(41, 128, 185, .8);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        p {
+            margin-top: -20px;
+            font-size: 30px;
+            color: #bad3ef;
+            animation: fadeInUp 1.5s ease-out;
+            margin-top: 1px;
+        }
+
+        img {
+            width: 350px;
+            height: 300px;
+            margin-left: 70%;
+            margin-bottom: 2%;
+            border-radius: 5%;
+            margin-top: 10%;
+            animation: zoomIn 1s ease-out, addShadow 1s ease-out;
+            box-shadow: 0 0 10px rgba(0.5, 0.3, 0, 0.3); 
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        @keyframes addShadow {
+            from {
+                box-shadow: none;
+            }
+            to {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+</style>
+<div class="container">
+    <div class="left">
+        <img src="https://images.pexels.com/photos/4346325/pexels-photo-4346325.jpeg?cs=srgb&dl=pexels-ioana-motoc-4346325.jpg&fm=jpg" alt="Project Image">
+    </div>
+    <div class="right">
+        <h1>Cyber Bulling Clasification</h1>
+        <p>Cyber Bulling Clasification Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis, tempora. Amet, ratione porro nihil excepturi voluptatibus a omnis reprehenderit repellat, et aliquam recusandae rem cupiditate, maxime unde nulla esse voluptas.</p>
+    </div>
+</div>
+<canvas id="canvas"></canvas>
+
+<script>
+    let canvas, ctx, w, h, units;
+let unitCount = 100;
+let hue = 0;
+
+function init() {
+	canvas = document.querySelector("#canvas");
+	ctx = canvas.getContext("2d");
+
+	resizeReset();
+	createUnits();
+	animationLoop();
+}
+
+function resizeReset() {
+	w = canvas.width = window.innerWidth;
+	h = canvas.height = window.innerHeight;
+	
+	ctx.fillStyle = "#222";
+	ctx.fillRect(0, 0, w, h);
+}
+
+function createUnits() {
+	units = [];
+	for (let i = 0; i < unitCount; i++) {
+		setTimeout(() => {
+			units.push(new Unit());
+		}, i * 200);
+	}
+}
+
+function animationLoop() {
+	ctx.fillStyle = "rgba(0, 0, 0, .05)";
+	ctx.fillRect(0, 0, w, h);
+
+	drawScene();	
+	requestAnimationFrame(animationLoop);
+}
+
+function drawScene() {
+	for (let i = 0; i < units.length; i++) {
+		units[i].update();
+		units[i].draw();
+	}
+}
+
+function getRandomInt(min, max) {
+	return Math.round(Math.random() * (max - min)) + min;
+}
+
+class Unit {
+	constructor() {
+		this.reset();
+		this.constructed = true;
+	}
+	reset() {
+		this.x = Math.round(w / 2);
+		this.y = Math.round(h / 2);
+		this.sx = this.x;
+		this.sy = this.y;
+		this.angle = 60 * getRandomInt(0, 5);
+		this.size = 1;
+		this.radian = (Math.PI / 180) * (this.angle + 90);
+		this.speed = 2;
+		this.maxDistance = 30;
+		this.time = 0;
+		this.ttl = getRandomInt(180, 300);
+		this.hue = hue;
+		hue += 0.5;
+	}
+	draw() {
+		ctx.save();
+		ctx.beginPath();		
+		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+		ctx.fillStyle = `hsl(${this.hue}, 100%, 50%)`;
+		ctx.shadowColor = `hsl(${this.hue}, 100%, 50%)`;
+		ctx.shadowBlur = 5;
+		ctx.fill();
+		ctx.closePath();
+		ctx.restore();
+	}
+	update() {
+		let dx = this.sx - this.x;
+		let dy = this.sy - this.y;
+		let distance = Math.sqrt(dx * dx + dy * dy);
+
+		if (distance >= this.maxDistance) {
+			if (getRandomInt(0, 1)) {
+				this.angle += 60;
+			} else {
+				this.angle -= 60;
+			}
+
+			this.radian = (Math.PI / 180) * (this.angle + 90);
+			this.sx = this.x;
+			this.sy = this.y; 
+		}
+
+		this.x += this.speed * Math.sin(this.radian);
+		this.y += this.speed * Math.cos(this.radian);
+		
+		if (this.time >= this.ttl || this.x < 0 || this.x > w || this.y < 0 || this.y > h) {
+			this.reset();
+		}
+
+		this.time++;
+	}
+} 
+
+window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("resize", resizeReset);
+</script>

@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %} {% endblock %} {% block style %}
+<style>
+  /* Internal CSS styles */
+  div {
+    text-align: center;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  form {
+    text-align: center;
+    margin-top: 50px;
+    font-weight: bold;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: inline-block;
+    width: 120px; /* Adjust width as needed */
+    text-align: left;
+  }
+
+  input[type='text'],
+  input[type='number'] {
+    width: 200px; /* Adjust width as needed */
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
+{% endblock %} {% block index %} {% endblock %} {% block content %}
+<h1>Water Potability Prediction Form</h1>
+<form method="post">
+  {% csrf_token %}
+  <label for="pH">pH:</label>
+  <input type="text" id="pH" name="pH" /><br /><br />
+
+  <label for="Hardness">Hardness:</label>
+  <input type="text" id="Hardness" name="Hardness" /><br /><br />
+
+  <label for="Solids">Solids:</label>
+  <input type="text" id="Solids" name="Solids" /><br /><br />
+
+  <label for="Chloramines">Chloramines:</label>
+  <input type="text" id="Chloramines" name="Chloramines" /><br /><br />
+
+  <label for="Sulfate">Sulfate:</label>
+  <input type="text" id="Sulfate" name="Sulfate" /><br /><br />
+
+  <label for="Conductivity">Conductivity:</label>
+  <input type="text" id="Conductivity" name="Conductivity" /><br /><br />
+
+  <label for="Organic_carbon">Organic Carbon:</label>
+  <input type="text" id="Organic_carbon" name="Organic_carbon" /><br /><br />
+
+  <label for="Trihalomethanes">Trihalomethanes:</label>
+  <input type="text" id="Trihalomethanes" name="Trihalomethanes" /><br /><br />
+
+  <label for="Turbidity">Turbidity:</label>
+  <input type="text" id="Turbidity" name="Turbidity" /><br /><br />
+
+  <input type="submit" value="Submit" />
+</form>
+{% endblock %}
